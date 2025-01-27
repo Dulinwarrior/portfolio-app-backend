@@ -5,7 +5,7 @@ const app = express();
 const port = 5002;
 
 app.use(cors()); // Enable CORS for frontend access
-app.use(express.json()); // Middleware to parse JSON bodies
+app.use(express.json()); // Middleware to parse JSON 
 
 // Hardcoded data for "About Me"
 const aboutMeData = {
