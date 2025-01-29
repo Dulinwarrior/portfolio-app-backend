@@ -93,26 +93,31 @@ const hobbiesData = {
 
 // Route to get "About Me" data
 app.get("/api/about-me", (req, res) => {
+  console.log(`[${new Date().toISOString()}] GET /api/about-me`);
   res.json(aboutMeData);
 });
 
 // Route to get "My Work" data
 app.get("/api/mywork", (req, res) => {
+  console.log(`[${new Date().toISOString()}] GET /api/mywork`);
   res.json(myWorkData);
 });
 
 // Route to get "My School" data
 app.get("/api/my-school", (req, res) => {
+  console.log(`[${new Date().toISOString()}] GET /api/my-school`);
   res.json(mySchoolData);
 });
 
 // Route to get "My Hometown" data
 app.get("/api/hometown", (req, res) => {
+  console.log(`[${new Date().toISOString()}] GET /api/hometown`);
   res.json(myHometownData);
 });
 
 // Route to get "My Hobbies" data
 app.get("/api/hobbies", (req, res) => {
+  console.log(`[${new Date().toISOString()}] GET /api/hobbies`);
   res.json(hobbiesData);
 });
 
@@ -121,6 +126,9 @@ app.post("/api/contact", (req, res) => {
   const { email, message } = req.body;
 
   if (!email || !message) {
+    console.error(
+      `[${new Date().toISOString()}] Validation Error: Missing fields - Received: ${JSON.stringify(req.body)}`
+    );
     return res.status(400).json({ error: "Email and message are required." });
   }
 
@@ -142,10 +150,12 @@ app.post("/api/contact", (req, res) => {
 
   transporter.sendMail(mailOptions, (err, info) => {
     if (err) {
-      console.error(`[${new Date().toISOString()}] Error sending email:`, err);
+      console.error(
+        `[${new Date().toISOString()}] Email Sending Error: ${JSON.stringify(err, null, 2)}`
+      );
       return res.status(500).json({ error: "Failed to send message. Please try again later." });
     }
-    console.log(`[${new Date().toISOString()}] Email sent:`, info.response);
+    console.log(`[${new Date().toISOString()}] Email sent successfully:`, info.response);
     res.status(200).json({ message: "Message sent successfully!" });
   });
 });
