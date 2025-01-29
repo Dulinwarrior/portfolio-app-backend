@@ -142,15 +142,15 @@ app.post("/api/contact", (req, res) => {
 
   transporter.sendMail(mailOptions, (err, info) => {
     if (err) {
-      console.error("Error sending email:", err);
+      console.error(`[${new Date().toISOString()}] Error sending email:`, err);
       return res.status(500).json({ error: "Failed to send message. Please try again later." });
     }
-    console.log("Email sent:", info.response);
+    console.log(`[${new Date().toISOString()}] Email sent:`, info.response);
     res.status(200).json({ message: "Message sent successfully!" });
   });
 });
 
 // Starting the server
 app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+  console.log(`[${new Date().toISOString()}] Server running at http://localhost:${port}`);
 });
