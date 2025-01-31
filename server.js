@@ -1,16 +1,18 @@
 const express = require("express");
 const cors = require("cors");
 const nodemailer = require("nodemailer"); // Import nodemailer for email functionality
-const rateLimit = require("express-rate-limit"); // Import rate limiting
 const helmet = require("helmet"); // Import helmet for security
+const rateLimit = require("express-rate-limit"); // Import rate limiter
+const compression = require("compression"); // Import compression for performance
 const app = express();
 const port = 5002;
 
-app.use(helmet()); // Enhance security with Helmet
 app.use(cors()); // Enable CORS for frontend access
-app.use(express.json()); // Middleware to parse JSON 
+app.use(express.json()); // Middleware to parse JSON
+app.use(helmet()); // Use helmet for security
+app.use(compression()); // Use compression for performance
 
-// Rate limiting middleware
+// Apply rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // Limit each IP to 100 requests per windowMs
@@ -102,48 +104,21 @@ const hobbiesData = {
   ],
 };
 
-// Route to get "About Me" data
+// Routes
 app.get("/api/about-me", (req, res) => {
-  console.log(`[${new Date().toISOString()}] GET /api/about-me`);
   res.json(aboutMeData);
 });
-
-// Route to get "My Work" data
 app.get("/api/mywork", (req, res) => {
-  console.log(`[${new Date().toISOString()}] GET /api/mywork`);
   res.json(myWorkData);
 });
-
-// Route to get "My School" data
 app.get("/api/my-school", (req, res) => {
-  console.log(`[${new Date().toISOString()}] GET /api/my-school`);
   res.json(mySchoolData);
 });
-
-// Route to get "My Hometown" data
 app.get("/api/hometown", (req, res) => {
-  console.log(`[${new Date().toISOString()}] GET /api/hometown`);
   res.json(myHometownData);
 });
-
-// Route to get "My Hobbies" data
 app.get("/api/hobbies", (req, res) => {
-  console.log(`[${new Date().toISOString()}] GET /api/hobbies`);
   res.json(hobbiesData);
-});
-
-// Route to handle contact form submissions
-app.post("/api/contact", (req, res) => {
-  const { email, message } = req.body;
-
-  if (!email || !message) {
-    console.error(
-      `[${new Date().toISOString()}] Validation Error: Missing fields - Received: ${JSON.stringify(req.body)}`
-    );
-    return res.status(400).json({ error: "Email and message are required." });
-  }
-
-  res.status(200).json({ message: "Message received." });
 });
 
 // Starting the server
