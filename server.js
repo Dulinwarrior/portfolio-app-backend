@@ -1,18 +1,19 @@
 const express = require("express");
 const cors = require("cors");
 const nodemailer = require("nodemailer"); // Import nodemailer for email functionality
-const helmet = require("helmet"); // Import helmet for security
-const rateLimit = require("express-rate-limit"); // Import rate limiter
-const compression = require("compression"); // Import compression for performance
+const helmet = require("helmet"); // Security middleware
+const rateLimit = require("express-rate-limit"); // Rate limiting middleware
+const compression = require("compression"); // Compression middleware
+
 const app = express();
 const port = 5002;
 
+app.use(helmet()); // Enable security protections
 app.use(cors()); // Enable CORS for frontend access
-app.use(express.json()); // Middleware to parse JSON
-app.use(helmet()); // Use helmet for security
-app.use(compression()); // Use compression for performance
+app.use(express.json()); // Middleware to parse JSON 
+app.use(compression()); // Enable response compression
 
-// Apply rate limiting
+// Rate limiting middleware
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // Limit each IP to 100 requests per windowMs
@@ -104,21 +105,30 @@ const hobbiesData = {
   ],
 };
 
-// Routes
+// Routes for fetching data
 app.get("/api/about-me", (req, res) => {
   res.json(aboutMeData);
 });
+
 app.get("/api/mywork", (req, res) => {
   res.json(myWorkData);
 });
+
 app.get("/api/my-school", (req, res) => {
   res.json(mySchoolData);
 });
+
 app.get("/api/hometown", (req, res) => {
   res.json(myHometownData);
 });
+
 app.get("/api/hobbies", (req, res) => {
   res.json(hobbiesData);
+});
+
+// 404 Not Found Route
+app.use((req, res) => {
+  res.status(404).json({ error: "404 Not Found" });
 });
 
 // Starting the server
