@@ -2,17 +2,19 @@ const express = require("express");
 const cors = require("cors");
 const nodemailer = require("nodemailer"); // Import nodemailer for email functionality
 const rateLimit = require("express-rate-limit"); // Import rate limiting
+const helmet = require("helmet"); // Import helmet for security
 const app = express();
 const port = 5002;
 
+app.use(helmet()); // Enhance security with Helmet
 app.use(cors()); // Enable CORS for frontend access
 app.use(express.json()); // Middleware to parse JSON 
 
 // Rate limiting middleware
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per window
-  message: "Too many requests, please try again later."
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: "Too many requests from this IP, please try again later."
 });
 app.use(limiter);
 
@@ -128,6 +130,20 @@ app.get("/api/hometown", (req, res) => {
 app.get("/api/hobbies", (req, res) => {
   console.log(`[${new Date().toISOString()}] GET /api/hobbies`);
   res.json(hobbiesData);
+});
+
+// Route to handle contact form submissions
+app.post("/api/contact", (req, res) => {
+  const { email, message } = req.body;
+
+  if (!email || !message) {
+    console.error(
+      `[${new Date().toISOString()}] Validation Error: Missing fields - Received: ${JSON.stringify(req.body)}`
+    );
+    return res.status(400).json({ error: "Email and message are required." });
+  }
+
+  res.status(200).json({ message: "Message received." });
 });
 
 // Starting the server
