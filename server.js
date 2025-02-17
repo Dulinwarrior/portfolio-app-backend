@@ -1,113 +1,85 @@
 const express = require("express");
 const cors = require("cors");
-const nodemailer = require("nodemailer");
-const helmet = require("helmet");
-const compression = require("compression");
-const rateLimit = require("express-rate-limit");
-const morgan = require("morgan");
+const fs = require("fs");
+const path = require("path");
 const app = express();
 const port = 5002;
 
-// Middleware
-app.use(helmet());
-app.use(compression());
+// Enable CORS and JSON parsing middleware
 app.use(cors());
 app.use(express.json());
-app.use(morgan("combined")); // Logging requests
 
-// Rate Limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  message: "Too many requests from this IP, please try again later."
-});
-app.use(limiter);
+// Hardcoded data for /api/my-school endpoint
+const mySchoolData = {
+  title: "My Amazing School",
+  imageUrl: "https://cdn.lyceum.lk/edgemedia/20240426182100/lyceum-wattala-complex.jpg",
+  about: {
+    header: "About Our School",
+    description:
+      "Our school is known for its outstanding education and vibrant community. We prioritize student success and holistic development.",
+    buttonLabel: "Learn More",
+  },
+};
 
-// Hardcoded data
-const aboutMeData = { /* Data unchanged */ };
-const myWorkData = { /* Data unchanged */ };
-const mySchoolData = { /* Data unchanged */ };
-const myHometownData = { /* Data unchanged */ };
-const hobbiesData = { /* Data unchanged */ };
+// Hardcoded data for /api/mywork endpoint
+const myWorkData = {
+  title: "My Work",
+  description: "This is a sample project involving school data and APIs.",
+  tasks: [
+    {
+      id: 1,
+      name: "Task 1",
+      status: "Completed",
+    },
+    {
+      id: 2,
+      name: "Task 2",
+      status: "In Progress",
+    },
+  ],
+};
 
-// Routes
-app.get("/api/about-me", (req, res) => {
-  console.log(`[${new Date().toISOString()}] GET /api/about-me`);
-  res.json(aboutMeData);
-});
-
-app.get("/api/mywork", (req, res) => {
-  console.log(`[${new Date().toISOString()}] GET /api/mywork`);
-  res.json(myWorkData);
-});
-
+// Get the /api/my-school data
 app.get("/api/my-school", (req, res) => {
-  console.log(`[${new Date().toISOString()}] GET /api/my-school`);
   res.json(mySchoolData);
 });
 
-app.get("/api/hometown", (req, res) => {
-  console.log(`[${new Date().toISOString()}] GET /api/hometown`);
-  res.json(myHometownData);
+// Get the /api/mywork data
+app.get("/api/mywork", (req, res) => {
+  res.json(myWorkData);
 });
 
-app.get("/api/hobbies", (req, res) => {
-  console.log(`[${new Date().toISOString()}] GET /api/hobbies`);
-  res.json(hobbiesData);
+// Example of another existing route
+app.get("/api/status", (req, res) => {
+  res.json({ status: "Server is running" });
 });
 
-app.post("/api/contact", (req, res) => {
-  const { email, message } = req.body;
-  if (!email || !message) {
-    console.error(`[${new Date().toISOString()}] Validation Error: Missing fields - Received: ${JSON.stringify(req.body)}`);
-    return res.status(400).json({ error: "Email and message are required." });
-  }
+// Get the /api/mywork data (with file handling)
+const myWorkFilePath = "./mywork.json";
 
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: { user: "your-email@gmail.com", pass: "your-email-password" }
-  });
-
-  const mailOptions = {
-    from: email,
-    to: "your-email@gmail.com",
-    subject: "New Contact Form Message",
-    text: `Message from: ${email}\n\n${message}`
-  };
-
-  transporter.sendMail(mailOptions, (err, info) => {
+// Load data from mywork.json file (for demonstration purposes)
+app.get("/api/mywork-old", (req, res) => {
+  fs.readFile(myWorkFilePath, "utf8", (err, data) => {
     if (err) {
-      console.error(`[${new Date().toISOString()}] Email Sending Error: ${JSON.stringify(err, null, 2)}`);
-      return res.status(500).json({ error: "Failed to send message. Please try again later." });
+      console.error("Error reading mywork.json:", err);
+      return res.status(500).json({ error: "Internal Server Error" });
     }
-    console.log(`[${new Date().toISOString()}] Email sent successfully:`, info.response);
-    res.status(200).json({ message: "Message sent successfully!" });
+    res.json(JSON.parse(data));
   });
 });
 
-// 404 Not Found Route
-app.use((req, res) => {
-  console.log(`[${new Date().toISOString()}] 404 Not Found: ${req.originalUrl}`);
-  res.status(404).json({ error: "Not Found" });
-});
-
-// Graceful Shutdown Handling
-const server = app.listen(port, () => {
-  console.log(`[${new Date().toISOString()}] Server running at http://localhost:${port}`);
-});
-
-process.on("SIGINT", () => {
-  console.log("\nGracefully shutting down...");
-  server.close(() => {
-    console.log("Server closed.");
-    process.exit(0);
+// Save or update mywork.json file (for demonstration purposes)
+app.post("/api/mywork-old", (req, res) => {
+  fs.writeFile(myWorkFilePath, JSON.stringify(req.body, null, 2), "utf8", (err) => {
+    if (err) {
+      console.error("Error writing to mywork.json:", err);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+    res.json({ message: "Data saved successfully" });
   });
 });
 
-process.on("SIGTERM", () => {
-  console.log("\nGracefully shutting down...");
-  server.close(() => {
-    console.log("Server closed.");
-    process.exit(0);
-  });
+// Start the server
+app.listen(port, () => {
+  console.log(`Server running on http://localhost:${port}`);
 });
