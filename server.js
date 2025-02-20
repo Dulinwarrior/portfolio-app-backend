@@ -39,15 +39,38 @@ const myWorkData = {
   ],
 };
 
+// Hardcoded data for /api/about-me endpoint
+const aboutMeData = {
+  title: "About Me",
+  intro: "Welcome to my personal space!",
+  sections: [
+    {
+      title: "Web Development",
+      description: "I love coding and building amazing websites.",
+      imageUrl: "https://www.getmecoding.com/wp-content/uploads/2017/10/GMC_blog_IsWebDevelopmentCoding_resize.jpg",
+    },
+    {
+      title: "Photography",
+      description: "Capturing moments through my lens.",
+      imageUrl: "https://www.printique.com/wp-content/uploads/2022/03/prophotography3-1024x683.jpg",
+    },
+    {
+      title: "Travel",
+      description: "Exploring new places and adventures.",
+      imageUrl: "https://media.istockphoto.com/id/904172104/photo/weve-made-it-all-this-way-i-am-proud.jpg?s=612x612&w=0&k=20&c=MewnsAhbeGRcMBN9_ZKhThmqPK6c8nCT8XYk5ZM_hdg=",
+    },
+  ],
+};
+
 // Get the /api/my-school data
 app.get("/api/my-school", (req, res) => {
   res.json(mySchoolData);
 });
 
 // Get the /api/mywork data
-app.get("/api/mywork", (req, res) => {
-  res.json(myWorkData);
-});
+// app.get("/api/mywork", (req, res) => {
+//   res.json(myWorkData);
+// });
 
 // Example of another existing route
 app.get("/api/status", (req, res) => {
@@ -58,7 +81,7 @@ app.get("/api/status", (req, res) => {
 const myWorkFilePath = "./mywork.json";
 
 // Load data from mywork.json file (for demonstration purposes)
-app.get("/api/mywork-old", (req, res) => {
+app.get("/api/mywork", (req, res) => {
   fs.readFile(myWorkFilePath, "utf8", (err, data) => {
     if (err) {
       console.error("Error reading mywork.json:", err);
@@ -77,6 +100,11 @@ app.post("/api/mywork-old", (req, res) => {
     }
     res.json({ message: "Data saved successfully" });
   });
+});
+
+// Get the /api/about-me data
+app.get("/api/about-me", (req, res) => {
+  res.json(aboutMeData);
 });
 
 // Start the server
